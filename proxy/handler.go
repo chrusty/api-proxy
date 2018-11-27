@@ -82,6 +82,7 @@ func (p *Proxy) handler(w http.ResponseWriter, req *http.Request) {
 
 	// Forward the response:
 	fieldLogger.WithField("status_code", proxyResponse.StatusCode).Debug("Successfully proxied request")
+	w.Header().Set("Content-Type", proxyResponse.Header.Get("Content-Type"))
 	w.WriteHeader(proxyResponse.StatusCode)
 	w.Write(responseBody)
 }
