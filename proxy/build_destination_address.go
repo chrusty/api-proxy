@@ -12,7 +12,7 @@ func (p *Proxy) buildDestinationAddress(requestURL string) (proxyAddress string,
 	pathComponents := strings.Split(requestURL, "/")
 
 	// Make sure we have enough path components to build a sensible destination address:
-	if len(pathComponents) < 2 {
+	if len(pathComponents) < 3 {
 		return "", fmt.Errorf("Can't build an address from less than 2 path components (eg '/v3/units')")
 	}
 
