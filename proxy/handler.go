@@ -80,9 +80,14 @@ func (p *Proxy) handler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// Get all the response headers:
+	for headerKey, headerValue := range proxyResponse.Header {
+		fieldLogger.Tracef("Setting response header (%s) = %s", headerKey, headerValue[0])
+		w.Header().Set(headerKey, headerValue[0])
+	}
+
 	// Forward the response:
 	fieldLogger.WithField("status_code", proxyResponse.StatusCode).Debug("Successfully proxied request")
-	w.Header().Set("Content-Type", proxyResponse.Header.Get("Content-Type"))
 	w.WriteHeader(proxyResponse.StatusCode)
 	w.Write(responseBody)
 }
