@@ -1,7 +1,5 @@
 APP_NAME="api-proxy"
-COMMIT=$(shell git rev-parse --short HEAD)
-BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
-BUILD_VERSION=$(shell git tag |tail -1)
+BUILD_VERSION="latest"
 
 build:
 	@echo " => Building bin/api-proxy ..."
