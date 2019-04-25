@@ -37,6 +37,7 @@ func (p *Proxy) handler(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		errorResponse := newErrorResponse("Unable to read request body", err)
 		fieldLogger.WithError(err).Warn(errorResponse.Message)
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(errorResponse.JSON())
 		return
@@ -49,6 +50,7 @@ func (p *Proxy) handler(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		errorResponse := newErrorResponse("Unable to build proxy request", err)
 		fieldLogger.WithError(err).Warn(errorResponse.Message)
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(errorResponse.JSON())
 		return
@@ -64,6 +66,7 @@ func (p *Proxy) handler(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		errorResponse := newErrorResponse("Unable to proxy request", err)
 		fieldLogger.WithError(err).Warn(errorResponse.Message)
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadGateway)
 		w.Write(errorResponse.JSON())
 		return
@@ -75,6 +78,7 @@ func (p *Proxy) handler(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		errorResponse := newErrorResponse("Unable to read response body", err)
 		fieldLogger.WithError(err).Warn(errorResponse.Message)
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(errorResponse.JSON())
 		return
