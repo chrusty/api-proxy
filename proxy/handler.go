@@ -22,10 +22,13 @@ func (p *Proxy) handler(w http.ResponseWriter, req *http.Request) {
 	// Determine the destination address:
 	destinationAddress, err := p.buildDestinationAddress(req.URL.Path)
 	if err != nil {
-		errorResponse := newErrorResponse("Unable to build destination address", err)
+		errorResponse := &errorResponse{
+			Code:    http.StatusBadRequest,
+			Error:   err.Error(),
+			Message: fmt.Sprintf("Unable to build destination address: %s", err.Error()),
+		}
+		errorResponse.write(w)
 		fieldLogger.WithError(err).Warn(errorResponse.Message)
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(errorResponse.JSON())
 		return
 	}
 
@@ -35,10 +38,13 @@ func (p *Proxy) handler(w http.ResponseWriter, req *http.Request) {
 	// Read the request body:
 	requestBody, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		errorResponse := newErrorResponse("Unable to read request body", err)
+		errorResponse := &errorResponse{
+			Code:    http.StatusBadRequest,
+			Error:   err.Error(),
+			Message: fmt.Sprintf("Unable to read request body: %s", err.Error()),
+		}
+		errorResponse.write(w)
 		fieldLogger.WithError(err).Warn(errorResponse.Message)
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(errorResponse.JSON())
 		return
 	}
 	defer req.Body.Close()
@@ -47,10 +53,13 @@ func (p *Proxy) handler(w http.ResponseWriter, req *http.Request) {
 	proxyURL := fmt.Sprintf("http://%s%s", destinationAddress, req.RequestURI)
 	proxyRequest, err := http.NewRequest(req.Method, proxyURL, bytes.NewReader(requestBody))
 	if err != nil {
-		errorResponse := newErrorResponse("Unable to build proxy request", err)
+		errorResponse := &errorResponse{
+			Code:    http.StatusMisdirectedRequest,
+			Error:   err.Error(),
+			Message: fmt.Sprintf("Unable to build proxy request: %s", err.Error()),
+		}
+		errorResponse.write(w)
 		fieldLogger.WithError(err).Warn(errorResponse.Message)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(errorResponse.JSON())
 		return
 	}
 
@@ -62,10 +71,13 @@ func (p *Proxy) handler(w http.ResponseWriter, req *http.Request) {
 	// Make the proxy request:
 	proxyResponse, err := p.httpClient.Do(proxyRequest)
 	if err != nil {
-		errorResponse := newErrorResponse("Unable to proxy request", err)
+		errorResponse := &errorResponse{
+			Code:    http.StatusBadGateway,
+			Error:   err.Error(),
+			Message: fmt.Sprintf("Unable to proxy request: %s", err.Error()),
+		}
+		errorResponse.write(w)
 		fieldLogger.WithError(err).Warn(errorResponse.Message)
-		w.WriteHeader(http.StatusBadGateway)
-		w.Write(errorResponse.JSON())
 		return
 	}
 	defer proxyResponse.Body.Close()
@@ -73,10 +85,13 @@ func (p *Proxy) handler(w http.ResponseWriter, req *http.Request) {
 	// Read the response body:
 	responseBody, err := ioutil.ReadAll(proxyResponse.Body)
 	if err != nil {
-		errorResponse := newErrorResponse("Unable to read response body", err)
+		errorResponse := &errorResponse{
+			Code:    http.StatusInternalServerError,
+			Error:   err.Error(),
+			Message: fmt.Sprintf("Unable to read response body: %s", err.Error()),
+		}
+		errorResponse.write(w)
 		fieldLogger.WithError(err).Warn(errorResponse.Message)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(errorResponse.JSON())
 		return
 	}
 
