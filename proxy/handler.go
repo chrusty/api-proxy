@@ -54,7 +54,7 @@ func (p *Proxy) handler(w http.ResponseWriter, req *http.Request) {
 	proxyRequest, err := http.NewRequest(req.Method, proxyURL, bytes.NewReader(requestBody))
 	if err != nil {
 		errorResponse := &errorResponse{
-			Code:    http.StatusMisdirectedRequest,
+			Code:    http.StatusUnprocessableEntity,
 			Error:   err.Error(),
 			Message: fmt.Sprintf("Unable to build proxy request: %s", err.Error()),
 		}
